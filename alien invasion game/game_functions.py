@@ -1,6 +1,7 @@
 import pygame, sys, time, json
 from bullets import Bullet
 from alien import Alien
+from alien_bullets import AlienBullet
 
 #-----checking events-------
 def check_keydown_events(ship, event, bullets, ai_settings, screen, play_button):
@@ -93,7 +94,8 @@ def create_alien(ai_settings, screen, aliens_num, aliens, rows_number, stats):
 
 def create_fleet(ai_settings, screen, aliens, ship, stats):
     available_numx =  get_available_numx(ai_settings, screen)
-    if stats.level % 5 == 0:
+    levels5 = check_5levels(stats)
+    if levels5:
         available_numy = 3
     else:
         available_numy = get_rows_number(ai_settings, screen, ship)
@@ -112,9 +114,13 @@ def check_aliens_bottom(stats, aliens, bullets, ship, ai_settings, screen, sb):
            ship_hit(stats, aliens, bullets, ship, ai_settings, screen, sb)
            break
 
+def check_5levels(stats):
+    if stats.level % 5 == 0:
+        return True
 def new_alien_image(stats, aliens):
     global available_rows
-    if stats.level % 5 == 0:
+    levels5 = check_5levels(stats)
+    if levels5:
         available_numy = 2
         for alien in aliens:
             alien.image = pygame.image.load("images/alien2.bmp")
@@ -183,13 +189,43 @@ def delet_bullets(bullets):
         if bullet.rect.bottom <= 0:
             bullets.remove(bullet)
 
+#-------alien bullets functions------
+def create_alien_bullets(stats, alien_bullets, aliens, ai_settings, screen):
+    levels5 = check_5levels(stats)
+    if levels5:
+        if len(alien_bullets) <= ai_settings.alien_bullets_allowed_num:
+            for alien in aliens:
+                alien_bullet = AlienBullet(ai_settings, screen)
+                alien_bullet.rect.centerx = alien.rect.centerx
+                alien_bullet.rect.bottom = alien.rect.bottom
+                alien_bullet.rect.y = alien.rect.y
+                alien_bullets.add(alien_bullet)
+
+def check_aliens_bullets_collision(alien_bullets, stats, aliens, bullets, ship, ai_settings, screen, sb):
+    if pygame.sprite.spritecollideany(ship, alien_bullets):
+        ship_hit(stats, aliens, bullets, ship, ai_settings, screen, sb)
+        alien_bullets.empty()
+
+    for alien_bullet in alien_bullets:
+        if alien_bullet.rect.top >= ai_settings.legnth:
+            alien_bullets.remove(alien_bullet)
+
+def add_alien_bullets(alien_bullets, stats, aliens, bullets, ship, ai_settings, screen, sb):
+    create_alien_bullets(stats, alien_bullets, aliens, ai_settings, screen)
+    for alien_bullet in alien_bullets:
+        alien_bullet.draw_bullet()
+        alien_bullet.update()
+    check_aliens_bullets_collision(alien_bullets, stats, aliens, bullets, ship, ai_settings, screen, sb)
+
+
 #------updating screen function-------
-def update_screen(stats, aliens, bullets, ship, ai_settings, screen, play_button, sb):
+def update_screen(stats, aliens, bullets, ship, ai_settings, screen, play_button, sb, alien_bullets):
     if stats.game_active:
         screen.fill(ai_settings.bg_color)
         update_bullet(aliens, bullets, ai_settings, screen, ship, sb, stats)
         update_alien(stats, aliens, bullets, ship, ai_settings, screen, sb)
         ship.blitme()
+        add_alien_bullets(alien_bullets, stats, aliens, bullets, ship, ai_settings, screen, sb)
         sb.draw_score()
     if not stats.game_active:
         screen.fill(ai_settings.bg_color)
