@@ -12,13 +12,15 @@ def run_game():
     #to e able to use the module
     pygame.init()
     #setting the settings object
-    ai_setting = Settings()
+    aliens = Group()
+    ai_setting = Settings(aliens)
     screen = pygame.display.set_mode((ai_setting.width, ai_setting.legnth) )
     pygame.display.set_caption("Invasion game")
     #setting the charecter object
     ship = Ship(screen)
     bullets = Group()
     aliens = Group()
+    alien_bullets = Group()
     stats = States(ai_setting)
     gf.create_fleet(ai_setting, screen, aliens, ship, stats)
     play_button = Button(ai_setting, screen, "Play")
@@ -33,8 +35,7 @@ def run_game():
             gf.moving(ship, screen, ai_setting.ship_speed_factor)
             gf.delet_bullets(bullets)
         #clock.tick(ai_setting.fps)
-        gf.update_screen(stats, aliens, bullets, ship, ai_setting, screen,
-        play_button, sb)
+        gf.update_screen(stats, aliens, bullets, ship, ai_setting, screen, play_button, sb, alien_bullets)
 
 
 
