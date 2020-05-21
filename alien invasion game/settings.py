@@ -2,7 +2,8 @@ import pygame
 
 #making a class for the game sittings
 class Settings:
-    def __init__(self):
+    def __init__(self, aliens):
+        self.aliens = aliens
         #-----screen settings----
         self.width = 900
         self.legnth = 700
@@ -17,6 +18,11 @@ class Settings:
         self.bullet_height = 15
         self.bullet_color = 60, 60 ,60
         self.bullets_allowed_num = 5
+        #-----alien bullet settings-----
+        self.alien_bullet_width = 3
+        self.alien_bullet_height = 15
+        self.alien_bullet_color = 60, 60 ,60
+        self.alien_bullets_allowed_num = len(self.aliens)
         #-------alien settings------
         self.alien_drop_speed = 6
         self.new_fleet_sound = pygame.mixer.Sound("images/new_fleet.wav")
@@ -31,6 +37,7 @@ class Settings:
     def initialize_dynamic_settings(self):
         self.ship_speed_factor = 1.5
         self.bullet_speed_factor = 1
+        self.alien_bullet_speed_factor = 1
         self.alien_speed_factor_x = 1
         self.alien_direction = 1
         self.alien_pounts = 50
